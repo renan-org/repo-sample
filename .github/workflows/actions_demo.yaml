@@ -1,0 +1,62 @@
+name: My demo
+on:
+#  push:
+#    branches: 
+#      - "main**"
+#      - "master**"
+#  pull_request:
+#    branches: 
+#      - "main"
+  workflow_dispatch:
+    inputs:
+      environment-renan:
+        description: Dummy env var
+        type: environment
+        required: true
+#  schedule:
+#    - cron: "15 6 * * 0"
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Display Event
+        run: |
+          echo "${{ github.event_name }}"
+
+      - name: name of the branch
+        run: echo "${{ github.ref }}"
+
+      - name: List all files in the repository
+        run: tree
+
+  test:
+    runs-on: ubuntu-latest
+    if: github_event == 'workflow_dispatch'
+    needs: demo
+    environment: Test
+    steps:
+      - name: Dummy echo
+        run: echo Testing ...
+        
+  Load-test:
+    runs-on: ubuntu-latest
+    if: github_event == 'workflow_dispatch'
+    needs: demo
+    environment: Load-Test
+    steps:
+      - name: Dummy echo
+        run: echo "Load-Testing ..."
+
+  Production:
+    runs-on: ubuntu-latest
+    if: github_event == 'workflow_dispatch'
+    needs: demo
+    environment: Production
+    steps:
+      - name: Dummy echo
+        run: echo "Production ..."
+        
