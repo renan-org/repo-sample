@@ -35,7 +35,7 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    if: github_event == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     needs: demo
     environment: Test
     steps:
@@ -44,7 +44,7 @@ jobs:
         
   Load-test:
     runs-on: ubuntu-latest
-    if: github_event == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     needs: demo
     environment: Load-Test
     steps:
@@ -54,7 +54,7 @@ jobs:
 
   Production:
     runs-on: ubuntu-latest
-    if: github_event == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     needs: demo
     environment: Production
     steps:
