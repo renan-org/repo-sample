@@ -40,7 +40,7 @@ jobs:
     environment: Test
     steps:
       - name: Dummy echo
-        run: echo Testing ...
+        run: echo "🧪 Testing..."
         
   Load-test:
     runs-on: ubuntu-latest
@@ -48,8 +48,9 @@ jobs:
     needs: demo
     environment: Load-Test
     steps:
-      - name: Dummy echo
-        run: echo "Load-Testing ..."
+      - run: |
+          echo "🧪 Testing..."
+          sleep 15
 
   Production:
     runs-on: ubuntu-latest
@@ -57,6 +58,18 @@ jobs:
     needs: demo
     environment: Production
     steps:
-      - name: Dummy echo
-        run: echo "Production ..."
-        
+      - run: |
+          echo "🚀 Step 1..."
+          sleep 10
+      - run: |
+          echo "🚀 Step 2..."
+          sleep 10
+      - run: |
+          echo "🚀 Step 3..."
+          sleep 10
+      - run: |
+          echo "🚀 Step 4..."
+          sleep 10
+      - run: |
+          echo "🚀 Step 5..."
+          sleep 10
