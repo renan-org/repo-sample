@@ -41,7 +41,10 @@ jobs:
     steps:
       - name: Dummy echo
         run: echo "🧪 Testing..."
-        
+
+      - name: Adding markdown
+        run: echo '### Hello world! 🚀' >> $GITHUB_STEP_SUMMARY
+
   Load-test:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
@@ -51,6 +54,9 @@ jobs:
       - run: |
           echo "🧪 Testing..."
           sleep 15
+      - name: Adding markdown
+        run: echo '### Hello world! 🚀' >> $GITHUB_STEP_SUMMARY
+
 
   Production:
     runs-on: ubuntu-latest
@@ -73,3 +79,6 @@ jobs:
       - run: |
           echo "🚀 Step 5..."
           sleep 10
+  
+      - name: Adding markdown
+        run: echo '### Hello world! 🚀' >> $GITHUB_STEP_SUMMARY
