@@ -1,22 +1,47 @@
----
 name: Admin Team Request
-about: Request to be added to the admin team
-title: "[ADMIN] Add user to admin team"
+description: Request to add or remove a user from the admin team
+title: "[ADMIN] Admin team modification request"
 labels: ["admin-request"]
-assignees: []
----
+assignees: [@renan-org/admin-group]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Admin Team Request
+        
+        This form allows you to request admin team modifications. Please fill out all required fields below.
+        
+        ### Instructions for Automation
+        - This issue will be processed automatically
+        - The user will be validated for existence and organization membership
+        - Results will be posted as a comment on this issue
 
-## Admin Team Request
+  - type: input
+    id: namespace_path
+    attributes:
+      label: GitHub Handle
+      description: "Enter the GitHub username (without @)"
+      placeholder: "e.g., username"
+    validations:
+      required: true
 
-**GitHub Username:** @username
+  - type: dropdown
+    id: action
+    attributes:
+      label: Modification Type
+      description: "Select the type of modification"
+      options:
+        - add
+        - remove
+      default: add
+    validations:
+      required: true
 
-**Justification:**
-Please provide a brief justification for why you need admin access.
-
----
-
-### Instructions for Automation
-- Replace `@username` with the actual GitHub username
-- This issue will be processed automatically
-- The user will be validated for existence and organization membership
-- Results will be posted as a comment on this issue
+  - type: textarea
+    id: justification
+    attributes:
+      label: Justification
+      description: "Provide a brief justification for this request"
+      placeholder: "Please explain why this admin access change is needed..."
+    validations:
+      required: true
