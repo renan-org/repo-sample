@@ -1,22 +1,15 @@
 ---
 name: Admin Team Request
-description: Request to add or remove a user from the admin team
+description: | 
+    Request to add or remove a user from the admin team.
+    This issue will be processed automatically
+    The user will be validated for existence and organization membership
+    Results will be posted as a comment on this issue
 title: "[ADMIN] Admin team modification request"
 labels: ["admin-request"]
 assignees: [@renan-org/admin-group]
-body:
-  - type: markdown
-    attributes:
-      value: |
-        ## Admin Team Request
-        
-        This form allows you to request admin team modifications. Please fill out all required fields below.
-        
-        ### Instructions for Automation
-        - This issue will be processed automatically
-        - The user will be validated for existence and organization membership
-        - Results will be posted as a comment on this issue
 
+body:
   - type: input
     id: namespace_path
     attributes:
