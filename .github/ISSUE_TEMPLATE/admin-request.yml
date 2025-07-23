@@ -34,4 +34,4 @@ body:
       description: "Provide a brief justification for this request"
       placeholder: "Please explain why this admin access change is needed..."
     validations:
-      required: true
+      required: false
