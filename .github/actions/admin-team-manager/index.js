@@ -24,13 +24,14 @@ class AdminTeamManager {
       // Get issue details
       const issue = await this.getIssue();
       const username = this.extractUsername(issue.body);
+      const actionType = this.extractActionType(issue.body);
       
       if (!username) {
-        await this.commentOnIssue('❌ Could not find a valid GitHub username in the issue body. Please use the format `@username`.');
+        await this.commentOnIssue('❌ Could not find a valid GitHub username in the issue body. Please provide a GitHub Handle.');
         return;
       }
 
-      core.info(`Processing request for user: ${username}`);
+      core.info(`Processing ${actionType} request for user: ${username}`);
       
       // Validate user exists and is org member
       const validationResult = await this.validateUser(username);
@@ -45,15 +46,27 @@ class AdminTeamManager {
         return;
       }
       
-      // Add user to admin team
-      const added = await this.addUserToAdminTeam(username);
-      
-      if (added) {
-        await this.commentOnIssue(`✅ User @${username} has been successfully added to the admin team!`);
-        await this.closeIssue();
-      } else {
-        await this.commentOnIssue(`ℹ️ User @${username} is already in the admin team.`);
-        await this.closeIssue();
+      // Perform the requested action
+      if (actionType === 'add') {
+        const added = await this.addUserToAdminTeam(username);
+        
+        if (added) {
+          await this.commentOnIssue(`✅ User @${username} has been successfully added to the admin team!`);
+          await this.closeIssue();
+        } else {
+          await this.commentOnIssue(`ℹ️ User @${username} is already in the admin team.`);
+          await this.closeIssue();
+        }
+      } else if (actionType === 'remove') {
+        const removed = await this.removeUserFromAdminTeam(username);
+        
+        if (removed) {
+          await this.commentOnIssue(`✅ User @${username} has been successfully removed from the admin team!`);
+          await this.closeIssue();
+        } else {
+          await this.commentOnIssue(`ℹ️ User @${username} is not in the admin team.`);
+          await this.closeIssue();
+        }
       }
       
     } catch (error) {
@@ -72,9 +85,21 @@ class AdminTeamManager {
   }
 
   extractUsername(issueBody) {
-    // Look for @username pattern
+    // First try to extract from GitHub issue form data
+    const githubHandleMatch = issueBody.match(/###\s*GitHub Handle\s*\n\s*([a-zA-Z0-9-]+)/i);
+    if (githubHandleMatch) {
+      return githubHandleMatch[1];
+    }
+    
+    // Fallback to @username pattern for backward compatibility
     const usernameMatch = issueBody.match(/@([a-zA-Z0-9-]+)/);
     return usernameMatch ? usernameMatch[1] : null;
+  }
+
+  extractActionType(issueBody) {
+    // Extract action type from GitHub issue form data
+    const actionMatch = issueBody.match(/###\s*Modification Type\s*\n\s*(add|remove)/i);
+    return actionMatch ? actionMatch[1].toLowerCase() : 'add'; // default to add
   }
 
   async validateUser(username) {
@@ -140,16 +165,7 @@ class AdminTeamManager {
       fs.writeFileSync(this.adminTeamPath, yamlContent);
       
       // Commit and push changes to .github repository
-      const currentDir = process.cwd();
-      process.chdir(this.adminTeamRepoPath);
-      
-      execSync('git config --global user.name "Admin Team Manager"');
-      execSync('git config --global user.email "admin-team-manager@github.com"');
-      execSync('git add admin-team.yml');
-      execSync(`git commit -m "Add ${username} to admin team via IssueOps"`);
-      execSync('git push');
-      
-      process.chdir(currentDir);
+      await this.commitChanges(`Add ${username} to admin team via IssueOps`);
       
       core.info(`User ${username} added to admin team`);
       return true;
@@ -158,6 +174,63 @@ class AdminTeamManager {
       core.error(`Failed to add user to admin team: ${error.message}`);
       throw error;
     }
+  }
+
+  async removeUserFromAdminTeam(username) {
+    try {
+      // Read current admin team file
+      if (!fs.existsSync(this.adminTeamPath)) {
+        core.info('Admin team file does not exist');
+        return false;
+      }
+      
+      const content = fs.readFileSync(this.adminTeamPath, 'utf8');
+      let adminTeam = yaml.load(content) || { team_admins: [] };
+      
+      // Ensure team_admins array exists
+      if (!adminTeam.team_admins) {
+        adminTeam.team_admins = [];
+      }
+      
+      // Check if user is in the team
+      const userIndex = adminTeam.team_admins.indexOf(username);
+      if (userIndex === -1) {
+        core.info(`User ${username} is not in the admin team`);
+        return false;
+      }
+      
+      // Remove user from admin team
+      adminTeam.team_admins.splice(userIndex, 1);
+      adminTeam.team_admins.sort(); // Keep the list sorted
+      
+      // Write updated file
+      const yamlContent = yaml.dump(adminTeam, { lineWidth: -1 });
+      
+      fs.writeFileSync(this.adminTeamPath, yamlContent);
+      
+      // Commit and push changes to .github repository
+      await this.commitChanges(`Remove ${username} from admin team via IssueOps`);
+      
+      core.info(`User ${username} removed from admin team`);
+      return true;
+      
+    } catch (error) {
+      core.error(`Failed to remove user from admin team: ${error.message}`);
+      throw error;
+    }
+  }
+
+  async commitChanges(commitMessage) {
+    const currentDir = process.cwd();
+    process.chdir(this.adminTeamRepoPath);
+    
+    execSync('git config --global user.name "Admin Team Manager"');
+    execSync('git config --global user.email "admin-team-manager@github.com"');
+    execSync('git add admin-team.yml');
+    execSync(`git commit -m "${commitMessage}"`);
+    execSync('git push');
+    
+    process.chdir(currentDir);
   }
 
   async commentOnIssue(message) {

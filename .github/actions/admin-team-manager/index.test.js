@@ -55,7 +55,21 @@ describe('AdminTeamManager', () => {
   });
 
   describe('extractUsername', () => {
-    test('should extract username from issue body', () => {
+    test('should extract username from GitHub issue form data', () => {
+      const issueBody = `
+### GitHub Handle
+
+testuser
+
+### Modification Type
+
+add
+`;
+      const username = manager.extractUsername(issueBody);
+      expect(username).toBe('testuser');
+    });
+
+    test('should extract username from issue body with @mention (backward compatibility)', () => {
       const issueBody = 'Please add @testuser to the admin team';
       const username = manager.extractUsername(issueBody);
       expect(username).toBe('testuser');
@@ -71,6 +85,34 @@ describe('AdminTeamManager', () => {
       const issueBody = 'Add @firstuser and @seconduser';
       const username = manager.extractUsername(issueBody);
       expect(username).toBe('firstuser');
+    });
+  });
+
+  describe('extractActionType', () => {
+    test('should extract add action from GitHub issue form data', () => {
+      const issueBody = `
+### Modification Type
+
+add
+`;
+      const actionType = manager.extractActionType(issueBody);
+      expect(actionType).toBe('add');
+    });
+
+    test('should extract remove action from GitHub issue form data', () => {
+      const issueBody = `
+### Modification Type
+
+remove
+`;
+      const actionType = manager.extractActionType(issueBody);
+      expect(actionType).toBe('remove');
+    });
+
+    test('should default to add if no action type found', () => {
+      const issueBody = 'No action type in this text';
+      const actionType = manager.extractActionType(issueBody);
+      expect(actionType).toBe('add');
     });
   });
 
