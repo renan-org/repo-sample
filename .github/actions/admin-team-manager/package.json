@@ -1,0 +1,17 @@
+{
+  "name": "admin-team-manager",
+  "version": "1.0.0",
+  "description": "GitHub Action to manage admin team via IssueOps",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}
