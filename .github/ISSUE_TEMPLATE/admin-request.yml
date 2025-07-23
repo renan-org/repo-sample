@@ -3,7 +3,7 @@ name: Admin Team Request
 description: Request to add or remove a user from the admin team.
 title: "[ADMIN] Admin team modification request"
 labels: ["admin-request"]
-assignees: [@renan-org/admin-group]
+assignees: ["renan-org/admin-group"]
 
 body:
   - type: input
