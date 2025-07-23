@@ -1,0 +1,9 @@
+# Admin Team Configuration
+# This file is managed automatically via IssueOps
+# Do not edit manually - use the Admin Team Request issue template instead
+
+team_admins:
+  # Admin team members will be listed here
+  # Example:
+  # - username1
+  # - username2

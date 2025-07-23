@@ -6,6 +6,19 @@ labels: ["admin-request"]
 assignees: ["renan-alm"]
 
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Automated Admin Team Management
+        
+        This request will be automatically processed by the [Admin Team Management workflow](../../actions/workflows/admin-team-manager.yml).
+        
+        The workflow will:
+        1. Validate that the requested user exists on GitHub
+        2. Verify the user is a member of this organization
+        3. Update the admin team list in the organization's `.github/admin-team.yml` file
+        4. Automatically close this issue with the result
+        
   - type: input
     id: github_handle
     attributes:
