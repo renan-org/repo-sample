@@ -9,6 +9,15 @@ body:
   - type: input
     id: namespace_path
     attributes:
+      label: Namespace Path (on GitLab IT)
+      description: "e.g., it-group/my-team"
+      placeholder: "it-group/my-team"
+    validations:
+      required: true
+
+  - type: input
+    id: github_handle
+    attributes:
       label: GitHub Handle
       description: "Enter the GitHub username (without @)"
       placeholder: "e.g., username"
