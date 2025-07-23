@@ -1,0 +1,2 @@
+blank_issues_enabled: false # Disables blank/freeform issues: Users cannot create issues without using a predefined template
+contact_links: [] # The empty array means no alternative contact methods are provided

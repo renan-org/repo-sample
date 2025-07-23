@@ -1,0 +1,25 @@
+name: 'Admin Team Manager'
+description: 'Manage admin team members via IssueOps'
+inputs:
+  github-token:
+    description: 'GitHub token for API access'
+    required: true
+  github-app-pem:
+    description: 'GitHub App private key (PEM format)'
+    required: false
+  github-app-id:
+    description: 'GitHub App ID'
+    required: false
+  organization:
+    description: 'Organization name to check membership'
+    required: true
+  issue-number:
+    description: 'Issue number that triggered this action'
+    required: true
+  admin-team-repo-path:
+    description: 'Path to the .github repository checkout'
+    required: true
+    default: 'github-repo'
+runs:
+  using: 'node20'
+  main: 'index.js'
