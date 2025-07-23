@@ -1,3 +1,4 @@
+---
 name: Admin Team Request
 description: Request to add or remove a user from the admin team
 title: "[ADMIN] Admin team modification request"
