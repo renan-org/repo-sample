@@ -24,7 +24,8 @@ describe('AdminTeamManager', () => {
       const inputs = {
         'github-token': 'mock-token',
         'organization': 'test-org',
-        'issue-number': '123'
+        'issue-number': '123',
+        'admin-team-repo-path': 'mock-github-repo'
       };
       return inputs[name] || '';
     });

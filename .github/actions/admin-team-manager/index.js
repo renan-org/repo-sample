@@ -12,8 +12,9 @@ class AdminTeamManager {
     this.appId = core.getInput('github-app-id');
     this.organization = core.getInput('organization');
     this.issueNumber = core.getInput('issue-number');
+    this.adminTeamRepoPath = core.getInput('admin-team-repo-path') || 'github-repo';
     this.octokit = github.getOctokit(this.token);
-    this.adminTeamPath = '.github/admin-team.yml';
+    this.adminTeamPath = path.join(this.adminTeamRepoPath, 'admin-team.yml');
   }
 
   async run() {
@@ -111,40 +112,44 @@ class AdminTeamManager {
   async addUserToAdminTeam(username) {
     try {
       // Read current admin team file
-      let adminTeam = { admins: [] };
+      let adminTeam = { team_admins: [] };
       
       if (fs.existsSync(this.adminTeamPath)) {
         const content = fs.readFileSync(this.adminTeamPath, 'utf8');
-        adminTeam = yaml.load(content) || { admins: [] };
+        adminTeam = yaml.load(content) || { team_admins: [] };
       }
       
-      // Ensure admins array exists
-      if (!adminTeam.admins) {
-        adminTeam.admins = [];
+      // Ensure team_admins array exists
+      if (!adminTeam.team_admins) {
+        adminTeam.team_admins = [];
       }
       
       // Check if user is already in the team
-      if (adminTeam.admins.includes(username)) {
+      if (adminTeam.team_admins.includes(username)) {
         core.info(`User ${username} is already in the admin team`);
         return false;
       }
       
       // Add user to admin team
-      adminTeam.admins.push(username);
-      adminTeam.admins.sort(); // Keep the list sorted
+      adminTeam.team_admins.push(username);
+      adminTeam.team_admins.sort(); // Keep the list sorted
       
       // Write updated file
       const yamlContent = yaml.dump(adminTeam, { lineWidth: -1 });
-      const fullContent = `# Admin Team Members\n# This file is managed via IssueOps - submit an issue with label 'admin-request' to modify\n${yamlContent}`;
       
-      fs.writeFileSync(this.adminTeamPath, fullContent);
+      fs.writeFileSync(this.adminTeamPath, yamlContent);
       
-      // Commit and push changes
+      // Commit and push changes to .github repository
+      const currentDir = process.cwd();
+      process.chdir(this.adminTeamRepoPath);
+      
       execSync('git config --global user.name "Admin Team Manager"');
       execSync('git config --global user.email "admin-team-manager@github.com"');
-      execSync(`git add ${this.adminTeamPath}`);
+      execSync('git add admin-team.yml');
       execSync(`git commit -m "Add ${username} to admin team via IssueOps"`);
       execSync('git push');
+      
+      process.chdir(currentDir);
       
       core.info(`User ${username} added to admin team`);
       return true;

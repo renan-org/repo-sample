@@ -14,7 +14,7 @@ This repository implements an automated admin team management system using GitHu
 2. GitHub Action triggers and validates:
    - User exists on GitHub
    - User is a member of the organization
-3. If valid, user is added to `.github/admin-team.yml`
+3. If valid, user is added to the organization's `.github/admin-team.yml` file
 4. Issue is automatically closed with a success/failure comment
 
 ## Authentication
@@ -31,15 +31,15 @@ Set the following secrets:
 
 ## Admin Team File
 
-The admin team members are stored in `.github/admin-team.yml`:
+The admin team members are stored in the organization's `.github/admin-team.yml` file:
 
 ```yaml
-# Admin Team Members
-# This file is managed via IssueOps - submit an issue with label 'admin-request' to modify
-admins:
+team_admins:
   - user1
   - user2
 ```
+
+This file is located in the `.github` repository of your organization (e.g., `https://github.com/yourorg/.github/blob/main/admin-team.yml`).
 
 ## Technical Implementation
 
@@ -67,5 +67,5 @@ The workflow activates on:
 
 The workflow needs:
 - `issues: write` - To comment and close issues
-- `contents: write` - To modify admin-team.yml
+- `contents: write` - To modify the .github repository's admin-team.yml
 - `pull-requests: write` - For repository operations

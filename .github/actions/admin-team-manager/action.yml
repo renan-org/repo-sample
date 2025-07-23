@@ -16,6 +16,10 @@ inputs:
   issue-number:
     description: 'Issue number that triggered this action'
     required: true
+  admin-team-repo-path:
+    description: 'Path to the .github repository checkout'
+    required: true
+    default: 'github-repo'
 runs:
   using: 'node20'
   main: 'index.js'

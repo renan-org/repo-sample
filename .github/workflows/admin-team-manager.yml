@@ -13,10 +13,18 @@ jobs:
       pull-requests: write
     
     steps:
-      - name: Checkout repository
+      - name: Checkout current repository (for action)
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          path: current-repo
+          
+      - name: Checkout .github repository (for admin-team.yml)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository_owner }}/.github
+          path: github-repo
           
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -34,14 +42,15 @@ jobs:
           
       - name: Install action dependencies
         run: |
-          cd .github/actions/admin-team-manager
+          cd current-repo/.github/actions/admin-team-manager
           npm install
           
       - name: Run admin team manager
-        uses: ./.github/actions/admin-team-manager
+        uses: ./current-repo/.github/actions/admin-team-manager
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           github-app-pem: ${{ secrets.GITHUB_APP_PEM }}
           github-app-id: ${{ secrets.GITHUB_APP_ID }}
           organization: ${{ github.repository_owner }}
           issue-number: ${{ github.event.issue.number }}
+          admin-team-repo-path: github-repo
