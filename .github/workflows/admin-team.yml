@@ -1,20 +1,17 @@
-name: Test Admin Team Management
+name: Admin Team Management
 on:
-  workflow_dispatch:
-    inputs:
-      user-name:
-        description: 'Name of the user to greet'
-        required: true
-        default: 'World'
+  issues:
+    types: [opened, edited]
 
 jobs:
-  test-manage-admin-team:
+  manage-admin-team:
+    if: contains(github.event.issue.labels.*.name, 'admin-request')
     runs-on: ubuntu-latest
     permissions:
       issues: write
       contents: write
       pull-requests: write
-    
+
     steps:
       - name: Checkout current repository (for action)
         uses: actions/checkout@v4

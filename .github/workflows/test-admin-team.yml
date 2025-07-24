@@ -1,10 +1,13 @@
-name: Admin Team Management
+name: Test Admin Team Management
 on:
-  issues:
-    types: [opened, edited]
-
+  workflow_dispatch:
+    inputs:
+      user-name:
+        description: 'Name of the user to greet'
+        required: true
+        default: 'World'
 jobs:
-  manage-admin-team:
+  test-admin-team:
     if: contains(github.event.issue.labels.*.name, 'admin-request')
     runs-on: ubuntu-latest
     permissions:
