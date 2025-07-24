@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Add user to admin team
-        if: ${{ github.event.inputs.action == 'add'  && steps.user-in-team.outputs.result != 'false' }}
+        if: ${{ github.event.inputs.action == 'add' && steps.user-in-team.outputs.result == 'false' }}
         run: |
           cd github-repo
           ls -la
