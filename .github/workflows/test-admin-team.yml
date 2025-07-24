@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Add user to admin team
-        if: ${{ github.event.inputs.action == 'add' }} && steps.user-in-team.outputs.result != 'true'
+        if: ${{ github.event.inputs.action == 'add' }} && steps.user-in-team.outputs.result != 'false'
         run: |
           cd github-repo
           ls -la
@@ -90,7 +90,6 @@ jobs:
           sed -i "/^\s*-\s*@${{ github.event.inputs.github-handle }}/d" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${{ secrets.SUPER_TOKEN }}@github.com/renan-org/.github.git
           git checkout -b remove-admin-@${{ github.event.inputs.github-handle }}
           git add admin-team.yml
           git commit -m "Remove @${{ github.event.inputs.github-handle }} from admin team"
