@@ -20,7 +20,7 @@ body:
         4. Automatically close this issue with the result
         
   - type: input
-    id: github_handle
+    id: github-handle
     attributes:
       label: GitHub Handle
       description: "Enter the GitHub username (without @)"
