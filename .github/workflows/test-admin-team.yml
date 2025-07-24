@@ -69,7 +69,9 @@ jobs:
       - name: Add user to admin team
         if: ${{ github.event.inputs.action == 'add' }} && steps.user-in-team.outputs.result != 'true'
         run: |
-          pwd && cd github-repo
+          ls -la 
+          pwd
+          cd github-repo
           echo "Adding @${{ github.event.inputs.github-handle }} to admin team..."
           sed -i "/^team_admins:/a \ \ - @${{ github.event.inputs.github-handle }}" "admin-team.yml"
           git config --global user.name "GitHub Actions"
@@ -83,7 +85,9 @@ jobs:
       - name: Remove user from admin team
         if: ${{ github.event.inputs.action == 'remove' }} && steps.user-in-team.outputs.result == 'true'
         run: |
-          pwd && cd github-repo
+          ls -la 
+          pwd
+          cd github-repo
           echo "Removing @${{ github.event.inputs.github-handle }} from admin team..."
           sed -i "/^\s*-\s*@${{ github.event.inputs.github-handle }}/d" "admin-team.yml"
           git config --global user.name "GitHub Actions"
