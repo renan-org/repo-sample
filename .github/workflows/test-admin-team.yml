@@ -6,6 +6,18 @@ on:
         description: 'Issue number to process'
         required: true
         default: '11'
+      github-handle:
+        description: 'GitHub username to add/remove from admin team'
+        required: true
+        default: 'rak10'
+      action:
+        description: 'Action to perform (add/remove)'
+        type: choice
+        options:
+          - add
+          - remove
+        required: true
+        default: 'add'
 
 jobs:
   test-admin-team:
@@ -30,16 +42,54 @@ jobs:
           path: github-repo
 
       - name: Init gh cli
-        run: gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+        run: gh auth login --with-token <<< ${{ secrets.SUPER_TOKEN }}
       - name: Ensure user exists in organization
-        run: gh api /orgs/${{ github.repository_owner }}/members/${{ github.event.inputs.github_handle }} --method GET || (echo "User does not exist in organization" && exit 1)
-        
-      - name: Run admin team manager
-        uses: ./current-repo/.github/actions/admin-team-manager
-        with:
-          github-token: ${{ secrets.SUPER_TOKEN }}
-          github-app-pem: ${{ secrets.GITHUB_APP_PEM }}
-          github-app-id: ${{ secrets.GITHUB_APP_ID }}
-          organization: ${{ github.repository_owner }}
-          issue-number: ${{ github.event.inputs.issue-number }}
-          admin-team-repo-path: .github
+        run: gh api orgs/renan-org/members/rak10 --silent && echo "✅ User is a member" || echo "❌ User is NOT a member" && exit 1
+      - name: Ensure admin-team.yml exists
+        run: |
+          if gh api repos/renan-org/.github/contents/admin-team.yml --silent; then
+            echo "✅ File exists."
+          else
+            echo "❌ File does not exist. Failing workflow."
+            exit 1
+          fi
+      - name: Check if ${{ github.event.inputs.github-handle }} is in team_admins (no yq)
+        id: user-in-team
+        run: |
+          CONTENT=$(gh api repos/renan-org/.github/contents/admin-team.yml --jq .content | base64 -d)
+          echo "$CONTENT" | grep -E '^\s*-\s*@${{ github.event.inputs.github-handle }}' > /dev/null
+          if [ $? -eq 0 ]; then
+            echo "@${{ github.event.inputs.github-handle }} is in the team_admins list."
+            echo "result=true" >> $GITHUB_ENV
+          else
+            echo "@${{ github.event.inputs.github-handle }} is NOT in the team_admins list."
+            echo "result=false" >> $GITHUB_ENV
+          fi
+
+      - name: Add user to admin team
+        if: ${{ github.event.inputs.action == 'add' }} && steps.user-in-team.outputs.result != 'true'
+        run: |
+          pwd && cd github-repo
+          echo "Adding @${{ github.event.inputs.github-handle }} to admin team..."
+          sed -i "/^team_admins:/a \ \ - @${{ github.event.inputs.github-handle }}" "admin-team.yml"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+          git checkout -b add-admin-@${{ github.event.inputs.github-handle }}
+          git add admin-team.yml
+          git commit -m "Add @${{ github.event.inputs.github-handle }} to admin team"
+          git push origin add-admin-@${{ github.event.inputs.github-handle }}
+          gh pr create --title "Add @${{ github.event.inputs.github-handle }} to admin team" --body "This PR adds @${{ github.event.inputs.github-handle }} to the admin team." --base main --head add-admin-@${{ github.event.inputs.github-handle }}
+
+      - name: Remove user from admin team
+        if: ${{ github.event.inputs.action == 'remove' }} && steps.user-in-team.outputs.result == 'true'
+        run: |
+          pwd && cd github-repo
+          echo "Removing @${{ github.event.inputs.github-handle }} from admin team..."
+          sed -i "/^\s*-\s*@${{ github.event.inputs.github-handle }}/d" "admin-team.yml"
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github-actions@github.com"
+          git checkout -b remove-admin-@${{ github.event.inputs.github-handle }}
+          git add admin-team.yml
+          git commit -m "Remove @${{ github.event.inputs.github-handle }} from admin team"
+          git push origin remove-admin-@${{ github.event.inputs.github-handle }}
+          gh pr create --title "Remove @${{ github.event.inputs.github-handle }} from admin team" --body "This PR removes @${{ github.event.inputs.github-handle }} from  the admin team." --base main --head remove-admin-@${{ github.event.inputs.github-handle }}  
