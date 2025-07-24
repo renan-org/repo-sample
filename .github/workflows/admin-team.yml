@@ -13,11 +13,24 @@ jobs:
       pull-requests: write
     
     steps:
+      - name: Checkout current repository (for Issue template)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          path: current-repo
+          
+      - name: Checkout .github repository (for admin-team.yml)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SUPER_TOKEN }}
+          repository: ${{ github.repository_owner }}/.github
+          path: github-repo
+
       - name: Parse issue body
         id: parse
         uses: stefanbuck/github-issue-parser@v3
         with:
-          template-path: .github/ISSUE_TEMPLATE/admin-request.yml
+          template-path: current-repo/.github/ISSUE_TEMPLATE/admin-request.yml
           issue-body: "${{ github.event.issue.body }}"
       - name: Save parsed output to file
         id: gather-issue-inputs
@@ -32,19 +45,6 @@ jobs:
           echo "GitHub Handle: ${{ github.env.HANDLE }}"
           echo "Action: ${{ github.env.ACTION }}"
           echo "Justification: ${{ github.env.JUSTIFICATION }}"
-
-      - name: Checkout current repository (for action)
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          path: current-repo
-          
-      - name: Checkout .github repository (for admin-team.yml)
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.SUPER_TOKEN }}
-          repository: ${{ github.repository_owner }}/.github
-          path: github-repo
 
       - name: Init gh cli
         run: gh auth login --with-token <<< ${{ secrets.SUPER_TOKEN }}
