@@ -95,7 +95,7 @@ jobs:
           git add admin-team.yml
           git commit -m "Add @${{ env.HANDLE }} to admin team"
           git push origin add-admin-${{ env.HANDLE }}-${{ github.run_id }}
-          PR_URL=$(gh pr create --title "Add @${{ env.HANDLE }} to admin team" --body "This PR adds @${{ env.HANDLE }} to the admin team." --base main --head add-admin-${{ env.HANDLE }}-${{ github.run_id }} --json url,number --jq '.url + " #" + (.number|tostring)')
+          PR_URL=$(gh pr create --title "Add @${{ env.HANDLE }} to admin team" --body "This PR adds @${{ env.HANDLE }} to the admin team." --base main --head add-admin-${{ env.HANDLE }}-${{ github.run_id }})
           echo "pr_url=${PR_URL}" >> $GITHUB_OUTPUT
 
       - name: Comment on original issue (add)
@@ -117,7 +117,7 @@ jobs:
           git add admin-team.yml
           git commit -m "Remove @${{ env.HANDLE }} from admin team"
           git push origin remove-admin-${{ env.HANDLE }}-${{ github.run_id }}
-          PR_URL=$(gh pr create --title "Remove @${{ env.HANDLE }} from admin team" --body "This PR removes @${{ env.HANDLE }} from the admin team." --base main --head remove-admin-${{ env.HANDLE }}-${{ github.run_id }} --json url,number --jq '.url + " #" + (.number|tostring)')
+          PR_URL=$(gh pr create --title "Remove @${{ env.HANDLE }} from admin team" --body "This PR removes @${{ env.HANDLE }} from the admin team." --base main --head remove-admin-${{ env.HANDLE }}-${{ github.run_id }})
           echo "pr_url=${PR_URL}" >> $GITHUB_OUTPUT
 
       - name: Comment on original issue (remove)
