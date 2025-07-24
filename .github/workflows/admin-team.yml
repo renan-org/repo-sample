@@ -18,6 +18,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: current-repo
+
+      - name: Init gh cli
+        run: gh auth login --with-token <<< ${{ secrets.SUPER_TOKEN }}
+        
       - name: Post workflow run on Issue
         run: |
           cd current-repo
@@ -50,9 +54,6 @@ jobs:
           echo "Action: ${{ env.ACTION }}"
           echo "Justification: ${{ env.JUSTIFICATION }}"
 
-      - name: Init gh cli
-        run: gh auth login --with-token <<< ${{ secrets.SUPER_TOKEN }}
-        
       - name: Ensure user exists in organization
         run: gh api orgs/renan-org/members/${{ env.HANDLE }} --silent && echo "✅ User is a member" || (echo "❌ User is NOT a member" && exit 1)
         
