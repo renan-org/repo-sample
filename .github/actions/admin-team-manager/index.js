@@ -50,19 +50,6 @@ class AdminTeamManager {
       }
       core.info(`Processing ${actionType} request for user: ${username}`);
       
-      // Validate user exists and is org member
-      const validationResult = await this.validateUser(username);
-      
-      if (!validationResult.exists) {
-        await this.commentOnIssue(`❌ User @${username} does not exist on GitHub.`);
-        return;
-      }
-      
-      if (!validationResult.isOrgMember) {
-        await this.commentOnIssue(`❌ User @${username} is not a member of the ${this.organization} organization.`);
-        return;
-      }
-      
       // Perform the requested action
       if (actionType === 'add') {
         const added = await this.addUserToAdminTeam(username);
@@ -117,46 +104,6 @@ class AdminTeamManager {
     // Extract action type from GitHub issue form data
     const actionMatch = issueBody.match(/###\s*Modification Type\s*\n\s*(add|remove)/i);
     return actionMatch ? actionMatch[1].toLowerCase() : 'add'; // default to add
-  }
-
-  async validateUser(username) {
-    const result = { exists: false, isOrgMember: false };
-    
-    try {
-      await this.octokit.rest.users.getByUsername({
-        username: username
-      });
-      result.exists = true;
-      core.info(`User ${username} exists on GitHub`);
-      
-      // Check organization membership
-      try {
-        await this.octokit.rest.orgs.getMembershipForUser({
-          org: this.organization,
-          username: username
-        });
-        result.isOrgMember = true;
-        core.info(`User ${username} is a member of ${this.organization}`);
-      } catch (memberError) {
-        // User might exist but not be a member, or membership is private
-        // Try checking public membership as fallback
-        try {
-          await this.octokit.rest.orgs.getPublicMembershipForUser({
-            org: this.organization,
-            username: username
-          });
-          result.isOrgMember = true;
-          core.info(`User ${username} is a public member of ${this.organization}`);
-        } catch (publicMemberError) {
-          core.info(`User ${username} is not a member of ${this.organization} or membership is private`);
-          result.isOrgMember = false;
-        }
-      }
-    } catch (userError) {
-      core.info(`User ${username} does not exist on GitHub!`);
-    }
-    
-    return result;
   }
 
   async addUserToAdminTeam(username) {

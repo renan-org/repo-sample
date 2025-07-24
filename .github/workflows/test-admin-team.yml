@@ -28,7 +28,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository_owner }}/.github
           path: github-repo
-          
+
+      - name: Init gh cli
+        run: gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+      - name: Ensure user exists in organization
+        run: gh api /orgs/${{ github.repository_owner }}/members/${{ github.event.inputs.github_handle }} --method GET || (echo "User does not exist in organization" && exit 1)
+        
       - name: Run admin team manager
         uses: ./current-repo/.github/actions/admin-team-manager
         with:
