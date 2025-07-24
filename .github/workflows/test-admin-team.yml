@@ -69,13 +69,13 @@ jobs:
       - name: Add user to admin team
         if: ${{ github.event.inputs.action == 'add' }} && steps.user-in-team.outputs.result != 'true'
         run: |
-          ls -la 
-          pwd
           cd github-repo
+          ls -la
           echo "Adding @${{ github.event.inputs.github-handle }} to admin team..."
           sed -i "/^team_admins:/a \ \ - @${{ github.event.inputs.github-handle }}" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
+          git remote set-url origin https://github-actions:${{ secrets.SUPER_TOKEN }}@github.com/renan-org/.github.git
           git checkout -b add-admin-@${{ github.event.inputs.github-handle }}
           git add admin-team.yml
           git commit -m "Add @${{ github.event.inputs.github-handle }} to admin team"
@@ -84,14 +84,14 @@ jobs:
 
       - name: Remove user from admin team
         if: ${{ github.event.inputs.action == 'remove' }} && steps.user-in-team.outputs.result == 'true'
-        run: |
-          ls -la 
-          pwd
+        run: | 
           cd github-repo
+          ls -la
           echo "Removing @${{ github.event.inputs.github-handle }} from admin team..."
           sed -i "/^\s*-\s*@${{ github.event.inputs.github-handle }}/d" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
+          git remote set-url origin https://github-actions:${{ secrets.SUPER_TOKEN }}@github.com/renan-org/.github.git
           git checkout -b remove-admin-@${{ github.event.inputs.github-handle }}
           git add admin-team.yml
           git commit -m "Remove @${{ github.event.inputs.github-handle }} from admin team"
