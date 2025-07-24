@@ -42,15 +42,15 @@ jobs:
           echo "JUSTIFICATION=$(jq -r '.justification' migrate_output.json)" >> $GITHUB_ENV
       - name: Show parsed data
         run: |
-          echo "GitHub Handle: ${{ github.env.HANDLE }}"
-          echo "Action: ${{ github.env.ACTION }}"
-          echo "Justification: ${{ github.env.JUSTIFICATION }}"
+          echo "GitHub Handle: ${{ env.HANDLE }}"
+          echo "Action: ${{ env.ACTION }}"
+          echo "Justification: ${{ env.JUSTIFICATION }}"
 
       - name: Init gh cli
         run: gh auth login --with-token <<< ${{ secrets.SUPER_TOKEN }}
         
       - name: Ensure user exists in organization
-        run: gh api orgs/renan-org/members/${{ github.env.HANDLE }} --silent && echo "✅ User is a member" || (echo "❌ User is NOT a member" && exit 1)
+        run: gh api orgs/renan-org/members/${{ env.HANDLE }} --silent && echo "✅ User is a member" || (echo "❌ User is NOT a member" && exit 1)
         
       - name: Ensure admin-team.yml exists
         run: |
