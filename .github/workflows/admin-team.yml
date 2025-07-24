@@ -67,65 +67,65 @@ jobs:
         run: |
           cd github-repo
           ls -la
-          grep '@${{ github.env.HANDLE }}' admin-team.yml >> /dev/null
+          grep '@${{ env.HANDLE }}' admin-team.yml >> /dev/null
           if [ $? -eq 0 ]; then
-            echo "@${{ github.env.HANDLE }} is in the admin team list."
+            echo "@${{ env.HANDLE }} is in the admin team list."
             echo "result=true" >> $GITHUB_OUTPUT
           else
-            echo "@${{ github.env.HANDLE }} is NOT in the admin team list."
+            echo "@${{ env.HANDLE }} is NOT in the admin team list."
             echo "result=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Add user to admin team
         id: add-user
-        if: ${{ github.env.ACTION == 'add' && steps.user-in-team.outputs.result == 'false' }}
+        if: ${{ env.ACTION == 'add' && steps.user-in-team.outputs.result == 'false' }}
         run: |
           cd github-repo
           ls -la
-          echo "Adding @${{ github.env.HANDLE }} to admin team..."
-          sed -i "/^team_admins:/a \ \ - @${{ github.env.HANDLE }}" "admin-team.yml"
+          echo "Adding @${{ env.HANDLE }} to admin team..."
+          sed -i "/^team_admins:/a \ \ - @${{ env.HANDLE }}" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git checkout -b add-admin-@${{ github.env.HANDLE }}
+          git checkout -b add-admin-@${{ env.HANDLE }}
           git add admin-team.yml
-          git commit -m "Add @${{ github.env.HANDLE }} to admin team"
-          git push origin add-admin-@${{ github.env.HANDLE }}
-          PR_URL=$(gh pr create --title "Add @${{ github.env.HANDLE }} to admin team" --body "This PR adds @${{ github.env.HANDLE }} to the admin team." --base main --head add-admin-@${{ github.env.HANDLE }} --json url,number --jq '.url + " #" + (.number|tostring)')
+          git commit -m "Add @${{ env.HANDLE }} to admin team"
+          git push origin add-admin-@${{ env.HANDLE }}
+          PR_URL=$(gh pr create --title "Add @${{ env.HANDLE }} to admin team" --body "This PR adds @${{ env.HANDLE }} to the admin team." --base main --head add-admin-@${{ env.HANDLE }} --json url,number --jq '.url + " #" + (.number|tostring)')
           echo "pr_url=${PR_URL}" >> $GITHUB_OUTPUT
 
       - name: Comment on original issue (add)
-        if: ${{ github.env.ACTION == 'add' && steps.user-in-team.outputs.result == 'false' }}
+        if: ${{ env.ACTION == 'add' && steps.user-in-team.outputs.result == 'false' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ github.env.HANDLE }} has been added to the admin team. PR: ${{ steps.add-user.outputs.pr_url }}"
+          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ env.HANDLE }} has been added to the admin team. PR: ${{ steps.add-user.outputs.pr_url }}"
 
       - name: Remove user from admin team
         id: remove-user
-        if: ${{ github.env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'true' }}
+        if: ${{ env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'true' }}
         run: |
           cd github-repo
           ls -la
-          echo "Removing @${{ github.env.HANDLE }} from admin team..."
-          sed -i "/^\s*-\s*@${{ github.env.HANDLE }}/d" "admin-team.yml"
+          echo "Removing @${{ env.HANDLE }} from admin team..."
+          sed -i "/^\s*-\s*@${{ env.HANDLE }}/d" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git checkout -b remove-admin-@${{ github.env.HANDLE }}
+          git checkout -b remove-admin-@${{ env.HANDLE }}
           git add admin-team.yml
-          git commit -m "Remove @${{ github.env.HANDLE }} from admin team"
-          git push origin remove-admin-@${{ github.env.HANDLE }}
-          PR_URL=$(gh pr create --title "Remove @${{ github.env.HANDLE }} from admin team" --body "This PR removes @${{ github.env.HANDLE }} from the admin team." --base main --head remove-admin-@${{ github.env.HANDLE }} --json url,number --jq '.url + " #" + (.number|tostring)')
+          git commit -m "Remove @${{ env.HANDLE }} from admin team"
+          git push origin remove-admin-@${{ env.HANDLE }}
+          PR_URL=$(gh pr create --title "Remove @${{ env.HANDLE }} from admin team" --body "This PR removes @${{ env.HANDLE }} from the admin team." --base main --head remove-admin-@${{ env.HANDLE }} --json url,number --jq '.url + " #" + (.number|tostring)')
           echo "pr_url=${PR_URL}" >> $GITHUB_OUTPUT
 
       - name: Comment on original issue (remove)
-        if: ${{ github.env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'true' }}
+        if: ${{ env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'true' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ github.env.HANDLE }} has been removed from the admin team. PR: ${{ steps.remove-user.outputs.pr_url }}"
+          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ env.HANDLE }} has been removed from the admin team. PR: ${{ steps.remove-user.outputs.pr_url }}"
 
       - name: Handle user already in team
-        if: ${{ github.env.ACTION == 'add' && steps.user-in-team.outputs.result == 'true' }}
+        if: ${{ env.ACTION == 'add' && steps.user-in-team.outputs.result == 'true' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "ℹ️ User @${{ github.env.HANDLE }} is already in the admin team."
+          gh issue comment ${{ github.event.issue.number }} --body "ℹ️ User @${{ env.HANDLE }} is already in the admin team."
 
       - name: Handle user not in team
-        if: ${{ github.env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'false' }}
+        if: ${{ env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'false' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "ℹ️ User @${{ github.env.HANDLE }} is not in the admin team."
+          gh issue comment ${{ github.event.issue.number }} --body "ℹ️ User @${{ env.HANDLE }} is not in the admin team."
