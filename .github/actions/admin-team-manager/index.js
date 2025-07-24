@@ -4,6 +4,7 @@ const yaml = require('js-yaml');
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { init } = require('../../../server');
 
 class AdminTeamManager {
   constructor() {
@@ -20,7 +21,16 @@ class AdminTeamManager {
     this.adminTeamRepo = core.getInput('admin-team-repo') || '.github';
     core.info(`Using repository for admin team: ${this.adminTeamRepo}`);
     this.octokit = github.getOctokit(this.token);
-    core.info('Initialized Octokit client');
+    if (this.appPem && this.appId) {
+      this.octokit = github.getOctokit(this.token, {
+        appId: this.appId,
+        privateKey: this.appPem
+      });
+      core.info('Initialized Octokit with GitHub App credentials');
+    } else {
+      this.octokit = github.getOctokit(this.token);
+      core.info('Initialized Octokit with personal access token');
+    }
     this.adminTeamPath = path.join(this.adminTeamRepo, 'admin-team.yml');
     core.info(`Admin team file path: ${this.adminTeamPath}`);
   }
@@ -113,7 +123,6 @@ class AdminTeamManager {
     const result = { exists: false, isOrgMember: false };
     
     try {
-      // Check if user exists using Octokit
       await this.octokit.rest.users.getByUsername({
         username: username
       });
@@ -144,7 +153,7 @@ class AdminTeamManager {
         }
       }
     } catch (userError) {
-      core.info(`User ${username} does not exist on GitHub`);
+      core.info(`User ${username} does not exist on GitHub!`);
     }
     
     return result;
