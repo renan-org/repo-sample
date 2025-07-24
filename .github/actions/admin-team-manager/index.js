@@ -136,12 +136,19 @@ class AdminTeamManager {
 
   async addUserToAdminTeam(username) {
     try {
-      // Read current admin team file
+      // Read current admin team file or create default structure
       let adminTeam = { team_admins: [] };
       
       if (fs.existsSync(this.adminTeamPath)) {
         const content = fs.readFileSync(this.adminTeamPath, 'utf8');
         adminTeam = yaml.load(content) || { team_admins: [] };
+      } else {
+        // Create the directory if it doesn't exist
+        const dir = path.dirname(this.adminTeamPath);
+        if (!fs.existsSync(dir)) {
+          fs.mkdirSync(dir, { recursive: true });
+        }
+        core.info('Created new admin team file structure');
       }
       
       // Ensure team_admins array exists
@@ -159,8 +166,12 @@ class AdminTeamManager {
       adminTeam.team_admins.push(username);
       adminTeam.team_admins.sort(); // Keep the list sorted
       
-      // Write updated file
-      const yamlContent = yaml.dump(adminTeam, { lineWidth: -1 });
+      // Write updated file with proper YAML structure
+      const yamlContent = yaml.dump(adminTeam, { 
+        lineWidth: -1,
+        noRefs: true,
+        sortKeys: true
+      });
       
       fs.writeFileSync(this.adminTeamPath, yamlContent);
       
@@ -203,8 +214,12 @@ class AdminTeamManager {
       adminTeam.team_admins.splice(userIndex, 1);
       adminTeam.team_admins.sort(); // Keep the list sorted
       
-      // Write updated file
-      const yamlContent = yaml.dump(adminTeam, { lineWidth: -1 });
+      // Write updated file with proper YAML structure
+      const yamlContent = yaml.dump(adminTeam, { 
+        lineWidth: -1,
+        noRefs: true,
+        sortKeys: true
+      });
       
       fs.writeFileSync(this.adminTeamPath, yamlContent);
       

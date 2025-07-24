@@ -4,18 +4,24 @@ This repository implements an automated admin team management system using GitHu
 
 ## How to Request Admin Access
 
-1. **Create an Issue**: Use the "Admin Team Request" issue template
+1. **Create an Issue**: Use the [Admin Team Request](../../issues/new?assignees=&labels=admin-request&template=admin-request.yml&title=%5BADMIN%5D+Admin+team+modification+request) issue template
 2. **Fill in Details**: Provide your GitHub username and justification
-3. **Submit**: The system will automatically process your request
+3. **Submit**: The system will automatically process your request via the [Admin Team Management workflow](../../actions/workflows/admin-team-manager.yml)
 
 ## Process Flow
 
 1. Issue is created with the `admin-request` label
-2. GitHub Action triggers and validates:
+2. [GitHub Action workflow](../../actions/workflows/admin-team-manager.yml) triggers and validates:
    - User exists on GitHub
    - User is a member of the organization
 3. If valid, user is added to the organization's `.github/admin-team.yml` file
 4. Issue is automatically closed with a success/failure comment
+
+## Workflow Status
+
+You can monitor the progress of your request by checking:
+- [Recent workflow runs](../../actions/workflows/admin-team-manager.yml)
+- The comments on your issue (automated updates)
 
 ## Authentication
 
