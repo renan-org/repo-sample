@@ -44,7 +44,7 @@ jobs:
       - name: Init gh cli
         run: gh auth login --with-token <<< ${{ secrets.SUPER_TOKEN }}
       - name: Ensure user exists in organization
-        run: gh api orgs/renan-org/members/rak10 --silent && echo "✅ User is a member" || echo "❌ User is NOT a member" && exit 1
+        run: gh api orgs/renan-org/members/rak10 --silent && echo "✅ User is a member" || (echo "❌ User is NOT a member" && exit 1)
       - name: Ensure admin-team.yml exists
         run: |
           if gh api repos/renan-org/.github/contents/admin-team.yml --silent; then
