@@ -55,7 +55,6 @@ jobs:
           fi
       - name: Check if ${{ github.event.inputs.github-handle }} is in admin team
         id: user-in-team
-        continue-on-error: true
         run: |
           CONTENT=$(gh api repos/renan-org/.github/contents/admin-team.yml --jq .content | base64 -d)
           MATCH=$(echo "$CONTENT" | grep -E "@${{ github.event.inputs.github-handle }}")
