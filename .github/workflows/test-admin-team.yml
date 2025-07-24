@@ -53,7 +53,7 @@ jobs:
             echo "❌ File does not exist. Failing workflow."
             exit 1
           fi
-      - name: Check if ${{ github.event.inputs.github-handle }} is in team_admins (no yq)
+      - name: Check if ${{ github.event.inputs.github-handle }} is in team_admins
         id: user-in-team
         run: |
           CONTENT=$(gh api repos/renan-org/.github/contents/admin-team.yml --jq .content | base64 -d)
@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Add user to admin team
-        if: ${{ github.event.inputs.action == 'add' }} && steps.user-in-team.outputs.result != 'false'
+        if: ${{ github.event.inputs.action == 'add'  && steps.user-in-team.outputs.result != 'false' }}
         run: |
           cd github-repo
           ls -la
@@ -82,8 +82,8 @@ jobs:
           gh pr create --title "Add @${{ github.event.inputs.github-handle }} to admin team" --body "This PR adds @${{ github.event.inputs.github-handle }} to the admin team." --base main --head add-admin-@${{ github.event.inputs.github-handle }}
 
       - name: Remove user from admin team
-        if: ${{ github.event.inputs.action == 'remove' }} && steps.user-in-team.outputs.result == 'true'
-        run: | 
+        if: ${{ github.event.inputs.action == 'remove' && steps.user-in-team.outputs.result == 'true' }}
+        run: |
           cd github-repo
           ls -la
           echo "Removing @${{ github.event.inputs.github-handle }} from admin team..."
