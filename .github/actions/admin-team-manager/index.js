@@ -18,7 +18,7 @@ class AdminTeamManager {
     this.issueNumber = core.getInput('issue-number');
     core.info(`Using issue number: ${this.issueNumber}`);
     this.adminTeamRepo = core.getInput('admin-team-repo') || '.github';
-    core.info(`Using admin team repository path: ${this.adminTeamRepo}`);
+    core.info(`Using repository for admin team: ${this.adminTeamRepo}`);
     this.octokit = github.getOctokit(this.token);
     core.info('Initialized Octokit client');
     this.adminTeamPath = path.join(this.adminTeamRepo, 'admin-team.yml');
@@ -27,7 +27,7 @@ class AdminTeamManager {
 
   async run() {
     try {
-      core.info('Starting admin team management process');
+      core.info('\n***********\nStarting admin team management process');
       
       // Get issue details
       const issue = await this.getIssue();
@@ -38,7 +38,6 @@ class AdminTeamManager {
         await this.commentOnIssue('❌ Could not find a valid GitHub username in the issue body. Please provide a GitHub Handle.');
         return;
       }
-
       core.info(`Processing ${actionType} request for user: ${username}`);
       
       // Validate user exists and is org member
@@ -114,20 +113,29 @@ class AdminTeamManager {
     const result = { exists: false, isOrgMember: false };
     
     try {
-      // Check if user exists using gh CLI
-      const userCheck = execSync(`gh api /users/${username}`, { encoding: 'utf8' });
+      // Check if user exists using Octokit
+      await this.octokit.rest.users.getByUsername({
+        username: username
+      });
       result.exists = true;
       core.info(`User ${username} exists on GitHub`);
       
       // Check organization membership
       try {
-        const memberCheck = execSync(`gh api /orgs/${this.organization}/members/${username}`, { encoding: 'utf8' });
+        await this.octokit.rest.orgs.getMembershipForUser({
+          org: this.organization,
+          username: username
+        });
         result.isOrgMember = true;
         core.info(`User ${username} is a member of ${this.organization}`);
       } catch (memberError) {
-        // User might exist but not be a public member, try different endpoint
+        // User might exist but not be a member, or membership is private
+        // Try checking public membership as fallback
         try {
-          const publicMemberCheck = execSync(`gh api /orgs/${this.organization}/public_members/${username}`, { encoding: 'utf8' });
+          await this.octokit.rest.orgs.getPublicMembershipForUser({
+            org: this.organization,
+            username: username
+          });
           result.isOrgMember = true;
           core.info(`User ${username} is a public member of ${this.organization}`);
         } catch (publicMemberError) {
