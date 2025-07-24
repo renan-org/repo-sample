@@ -18,7 +18,11 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: current-repo
-          
+      - name: Post workflow run on Issue
+        run: |
+          cd current-repo
+          gh issue comment ${{ github.event.issue.number }} --body "This issue is being processed by the Admin Team Management workflow. Please wait for the results."
+
       - name: Checkout .github repository (for admin-team.yml)
         uses: actions/checkout@v4
         with:
@@ -86,11 +90,11 @@ jobs:
           sed -i "/^team_admins:/a \ \ - @${{ env.HANDLE }}" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git checkout -b add-admin-@${{ env.HANDLE }}
+          git checkout -b add-admin-${{ env.HANDLE }}-${{ github.run_id }}
           git add admin-team.yml
           git commit -m "Add @${{ env.HANDLE }} to admin team"
-          git push origin add-admin-@${{ env.HANDLE }}
-          PR_URL=$(gh pr create --title "Add @${{ env.HANDLE }} to admin team" --body "This PR adds @${{ env.HANDLE }} to the admin team." --base main --head add-admin-@${{ env.HANDLE }} --json url,number --jq '.url + " #" + (.number|tostring)')
+          git push origin add-admin-${{ env.HANDLE }}-${{ github.run_id }}
+          PR_URL=$(gh pr create --title "Add @${{ env.HANDLE }} to admin team" --body "This PR adds @${{ env.HANDLE }} to the admin team." --base main --head add-admin-${{ env.HANDLE }}-${{ github.run_id }} --json url,number --jq '.url + " #" + (.number|tostring)')
           echo "pr_url=${PR_URL}" >> $GITHUB_OUTPUT
 
       - name: Comment on original issue (add)
@@ -108,11 +112,11 @@ jobs:
           sed -i "/^\s*-\s*@${{ env.HANDLE }}/d" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git checkout -b remove-admin-@${{ env.HANDLE }}
+          git checkout -b remove-admin-${{ env.HANDLE }}-${{ github.run_id }}
           git add admin-team.yml
           git commit -m "Remove @${{ env.HANDLE }} from admin team"
-          git push origin remove-admin-@${{ env.HANDLE }}
-          PR_URL=$(gh pr create --title "Remove @${{ env.HANDLE }} from admin team" --body "This PR removes @${{ env.HANDLE }} from the admin team." --base main --head remove-admin-@${{ env.HANDLE }} --json url,number --jq '.url + " #" + (.number|tostring)')
+          git push origin remove-admin-${{ env.HANDLE }}-${{ github.run_id }}
+          PR_URL=$(gh pr create --title "Remove @${{ env.HANDLE }} from admin team" --body "This PR removes @${{ env.HANDLE }} from the admin team." --base main --head remove-admin-${{ env.HANDLE }}-${{ github.run_id }} --json url,number --jq '.url + " #" + (.number|tostring)')
           echo "pr_url=${PR_URL}" >> $GITHUB_OUTPUT
 
       - name: Comment on original issue (remove)
