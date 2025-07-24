@@ -13,27 +13,26 @@ jobs:
       pull-requests: write
     
     steps:
-      - name: Parse issue form
+      - name: Parse issue body
         id: parse
+        uses: stefanbuck/github-issue-parser@v3
+        with:
+          template-path: .github/ISSUE_TEMPLATE/admin-request.yml
+          issue-body: "${{ github.event.issue.body }}"
+      - name: Save parsed output to file
+        id: gather-issue-inputs
+        run: echo '${{ steps.parse.outputs.jsonString }}' > migrate_output.json
+      - name: Export parsed values as environment variables
         run: |
-          # Extract github-handle from issue body
-          GITHUB_HANDLE=$(echo '${{ github.event.issue.body }}' | grep -A1 "### GitHub Handle" | tail -n1 | xargs)
-          echo "github-handle=${GITHUB_HANDLE}" >> $GITHUB_OUTPUT
-          
-          # Extract action from issue body  
-          ACTION=$(echo '${{ github.event.issue.body }}' | grep -A1 "### Modification Type" | tail -n1 | xargs)
-          echo "action=${ACTION}" >> $GITHUB_OUTPUT
-          
-          # Extract justification from issue body
-          JUSTIFICATION=$(echo '${{ github.event.issue.body }}' | sed -n '/### Justification/,/###/p' | sed '1d;$d' | xargs)
-          echo "justification=${JUSTIFICATION}" >> $GITHUB_OUTPUT
-
+          echo "HANDLE=$(jq -r '.github_handle' migrate_output.json)" >> $GITHUB_ENV
+          echo "ACTION=$(jq -r '.action_type' migrate_output.json)" >> $GITHUB_ENV
+          echo "JUSTIFICATION=$(jq -r '.justification' migrate_output.json)" >> $GITHUB_ENV
       - name: Show parsed data
         run: |
-          echo "GitHub Handle: ${{ steps.parse.outputs.github-handle }}"
-          echo "Action: ${{ steps.parse.outputs.action }}"
-          echo "Justification: ${{ steps.parse.outputs.justification }}"
-          
+          echo "GitHub Handle: ${{ github.env.HANDLE }}"
+          echo "Action: ${{ github.env.ACTION }}"
+          echo "Justification: ${{ github.env.JUSTIFICATION }}"
+
       - name: Checkout current repository (for action)
         uses: actions/checkout@v4
         with:
@@ -51,7 +50,7 @@ jobs:
         run: gh auth login --with-token <<< ${{ secrets.SUPER_TOKEN }}
         
       - name: Ensure user exists in organization
-        run: gh api orgs/renan-org/members/${{ steps.parse.outputs.github-handle }} --silent && echo "✅ User is a member" || (echo "❌ User is NOT a member" && exit 1)
+        run: gh api orgs/renan-org/members/${{ github.env.HANDLE }} --silent && echo "✅ User is a member" || (echo "❌ User is NOT a member" && exit 1)
         
       - name: Ensure admin-team.yml exists
         run: |
@@ -68,65 +67,65 @@ jobs:
         run: |
           cd github-repo
           ls -la
-          grep '@${{ steps.parse.outputs.github-handle }}' admin-team.yml >> /dev/null
+          grep '@${{ github.env.HANDLE }}' admin-team.yml >> /dev/null
           if [ $? -eq 0 ]; then
-            echo "@${{ steps.parse.outputs.github-handle }} is in the admin team list."
+            echo "@${{ github.env.HANDLE }} is in the admin team list."
             echo "result=true" >> $GITHUB_OUTPUT
           else
-            echo "@${{ steps.parse.outputs.github-handle }} is NOT in the admin team list."
+            echo "@${{ github.env.HANDLE }} is NOT in the admin team list."
             echo "result=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Add user to admin team
         id: add-user
-        if: ${{ steps.parse.outputs.action == 'add' && steps.user-in-team.outputs.result == 'false' }}
+        if: ${{ github.env.ACTION == 'add' && steps.user-in-team.outputs.result == 'false' }}
         run: |
           cd github-repo
           ls -la
-          echo "Adding @${{ steps.parse.outputs.github-handle }} to admin team..."
-          sed -i "/^team_admins:/a \ \ - @${{ steps.parse.outputs.github-handle }}" "admin-team.yml"
+          echo "Adding @${{ github.env.HANDLE }} to admin team..."
+          sed -i "/^team_admins:/a \ \ - @${{ github.env.HANDLE }}" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git checkout -b add-admin-@${{ steps.parse.outputs.github-handle }}
+          git checkout -b add-admin-@${{ github.env.HANDLE }}
           git add admin-team.yml
-          git commit -m "Add @${{ steps.parse.outputs.github-handle }} to admin team"
-          git push origin add-admin-@${{ steps.parse.outputs.github-handle }}
-          PR_URL=$(gh pr create --title "Add @${{ steps.parse.outputs.github-handle }} to admin team" --body "This PR adds @${{ steps.parse.outputs.github-handle }} to the admin team." --base main --head add-admin-@${{ steps.parse.outputs.github-handle }} --json url,number --jq '.url + " #" + (.number|tostring)')
+          git commit -m "Add @${{ github.env.HANDLE }} to admin team"
+          git push origin add-admin-@${{ github.env.HANDLE }}
+          PR_URL=$(gh pr create --title "Add @${{ github.env.HANDLE }} to admin team" --body "This PR adds @${{ github.env.HANDLE }} to the admin team." --base main --head add-admin-@${{ github.env.HANDLE }} --json url,number --jq '.url + " #" + (.number|tostring)')
           echo "pr_url=${PR_URL}" >> $GITHUB_OUTPUT
 
       - name: Comment on original issue (add)
-        if: ${{ steps.parse.outputs.action == 'add' && steps.user-in-team.outputs.result == 'false' }}
+        if: ${{ github.env.ACTION == 'add' && steps.user-in-team.outputs.result == 'false' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ steps.parse.outputs.github-handle }} has been added to the admin team. PR: ${{ steps.add-user.outputs.pr_url }}"
+          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ github.env.HANDLE }} has been added to the admin team. PR: ${{ steps.add-user.outputs.pr_url }}"
 
       - name: Remove user from admin team
         id: remove-user
-        if: ${{ steps.parse.outputs.action == 'remove' && steps.user-in-team.outputs.result == 'true' }}
+        if: ${{ github.env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'true' }}
         run: |
           cd github-repo
           ls -la
-          echo "Removing @${{ steps.parse.outputs.github-handle }} from admin team..."
-          sed -i "/^\s*-\s*@${{ steps.parse.outputs.github-handle }}/d" "admin-team.yml"
+          echo "Removing @${{ github.env.HANDLE }} from admin team..."
+          sed -i "/^\s*-\s*@${{ github.env.HANDLE }}/d" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git checkout -b remove-admin-@${{ steps.parse.outputs.github-handle }}
+          git checkout -b remove-admin-@${{ github.env.HANDLE }}
           git add admin-team.yml
-          git commit -m "Remove @${{ steps.parse.outputs.github-handle }} from admin team"
-          git push origin remove-admin-@${{ steps.parse.outputs.github-handle }}
-          PR_URL=$(gh pr create --title "Remove @${{ steps.parse.outputs.github-handle }} from admin team" --body "This PR removes @${{ steps.parse.outputs.github-handle }} from the admin team." --base main --head remove-admin-@${{ steps.parse.outputs.github-handle }} --json url,number --jq '.url + " #" + (.number|tostring)')
+          git commit -m "Remove @${{ github.env.HANDLE }} from admin team"
+          git push origin remove-admin-@${{ github.env.HANDLE }}
+          PR_URL=$(gh pr create --title "Remove @${{ github.env.HANDLE }} from admin team" --body "This PR removes @${{ github.env.HANDLE }} from the admin team." --base main --head remove-admin-@${{ github.env.HANDLE }} --json url,number --jq '.url + " #" + (.number|tostring)')
           echo "pr_url=${PR_URL}" >> $GITHUB_OUTPUT
 
       - name: Comment on original issue (remove)
-        if: ${{ steps.parse.outputs.action == 'remove' && steps.user-in-team.outputs.result == 'true' }}
+        if: ${{ github.env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'true' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ steps.parse.outputs.github-handle }} has been removed from the admin team. PR: ${{ steps.remove-user.outputs.pr_url }}"
+          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ github.env.HANDLE }} has been removed from the admin team. PR: ${{ steps.remove-user.outputs.pr_url }}"
 
       - name: Handle user already in team
-        if: ${{ steps.parse.outputs.action == 'add' && steps.user-in-team.outputs.result == 'true' }}
+        if: ${{ github.env.ACTION == 'add' && steps.user-in-team.outputs.result == 'true' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "ℹ️ User @${{ steps.parse.outputs.github-handle }} is already in the admin team."
+          gh issue comment ${{ github.event.issue.number }} --body "ℹ️ User @${{ github.env.HANDLE }} is already in the admin team."
 
       - name: Handle user not in team
-        if: ${{ steps.parse.outputs.action == 'remove' && steps.user-in-team.outputs.result == 'false' }}
+        if: ${{ github.env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'false' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "ℹ️ User @${{ steps.parse.outputs.github-handle }} is not in the admin team."
+          gh issue comment ${{ github.event.issue.number }} --body "ℹ️ User @${{ github.env.HANDLE }} is not in the admin team."
