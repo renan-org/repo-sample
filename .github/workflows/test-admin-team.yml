@@ -2,10 +2,10 @@ name: Test Admin Team Management
 on:
   workflow_dispatch:
     inputs:
-      user-name:
-        description: 'Name of the user to greet'
+      issue-number:
+        description: 'Issue number to process'
         required: true
-        default: 'World'
+        default: '11'
 
 jobs:
   test-admin-team:
@@ -36,5 +36,5 @@ jobs:
           github-app-pem: ${{ secrets.GITHUB_APP_PEM }}
           github-app-id: ${{ secrets.GITHUB_APP_ID }}
           organization: ${{ github.repository_owner }}
-          issue-number: ${{ github.event.issue.number }}
+          issue-number: ${{ github.event.inputs.issue-number }}
           admin-team-repo-path: .github
