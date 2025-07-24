@@ -6,9 +6,9 @@ on:
         description: 'Name of the user to greet'
         required: true
         default: 'World'
+
 jobs:
   test-admin-team:
-    if: contains(github.event.issue.labels.*.name, 'admin-request')
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -28,20 +28,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository_owner }}/.github
           path: github-repo
-          
-      # - name: Setup Node.js
-      #   uses: actions/setup-node@v4
-      #   with:
-      #     node-version: '20'
-          
-      - name: Configure GitHub CLI
-        run: |
-          gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
-          
-      # - name: Install action dependencies
-      #   run: |
-      #     cd current-repo/.github/actions/admin-team-manager
-      #     npm install
           
       - name: Run admin team manager
         uses: ./current-repo/.github/actions/admin-team-manager

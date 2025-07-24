@@ -8,13 +8,21 @@ const path = require('path');
 class AdminTeamManager {
   constructor() {
     this.token = core.getInput('github-token');
+    core.info(`Using token: ${this.token ? '***' : 'not set'}`);
     this.appPem = core.getInput('github-app-pem');
+    core.info(`Using app PEM: ${this.appPem ? '***' : 'not set'}`);
     this.appId = core.getInput('github-app-id');
+    core.info(`Using app ID: ${this.appId ? '***' : 'not set'}`);
     this.organization = core.getInput('organization');
+    core.info(`Using organization: ${this.organization}`);
     this.issueNumber = core.getInput('issue-number');
-    this.adminTeamRepoPath = core.getInput('admin-team-repo-path') || 'github-repo';
+    core.info(`Using issue number: ${this.issueNumber}`);
+    this.adminTeamRepo = core.getInput('admin-team-repo') || '.github';
+    core.info(`Using admin team repository path: ${this.adminTeamRepo}`);
     this.octokit = github.getOctokit(this.token);
-    this.adminTeamPath = path.join(this.adminTeamRepoPath, 'admin-team.yml');
+    core.info('Initialized Octokit client');
+    this.adminTeamPath = path.join(this.adminTeamRepo, 'admin-team.yml');
+    core.info(`Admin team file path: ${this.adminTeamPath}`);
   }
 
   async run() {
@@ -237,7 +245,7 @@ class AdminTeamManager {
 
   async commitChanges(commitMessage) {
     const currentDir = process.cwd();
-    process.chdir(this.adminTeamRepoPath);
+    process.chdir(this.adminTeamRepo);
     
     execSync('git config --global user.name "Admin Team Manager"');
     execSync('git config --global user.email "admin-team-manager@github.com"');
@@ -267,7 +275,7 @@ class AdminTeamManager {
   }
 }
 
-// Run the action
+// Run the action - This is the entry point when the action is executed
 if (require.main === module) {
   const manager = new AdminTeamManager();
   manager.run();
