@@ -101,7 +101,7 @@ jobs:
       - name: Comment on original issue (add)
         if: ${{ env.ACTION == 'add' && steps.user-in-team.outputs.result == 'false' }}
         run: |
-          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ env.HANDLE }} has been added to the admin team. PR: ${{ steps.add-user.outputs.pr_url }}"
+          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ env.HANDLE }} will be added to the admin team via PR: ${{ steps.add-user.outputs.pr_url }}"
 
       - name: Remove user from admin team
         id: remove-user
@@ -124,7 +124,7 @@ jobs:
         if: ${{ env.ACTION == 'remove' && steps.user-in-team.outputs.result == 'true' }}
         run: |
           cd current-repo
-          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ env.HANDLE }} has been removed from the admin team. PR: ${{ steps.remove-user.outputs.pr_url }}"
+          gh issue comment ${{ github.event.issue.number }} --body "✅ User @${{ env.HANDLE }} can be removed from the admin team via PR: ${{ steps.remove-user.outputs.pr_url }}"
 
       - name: Handle user already in team
         if: ${{ env.ACTION == 'add' && steps.user-in-team.outputs.result == 'true' }}
