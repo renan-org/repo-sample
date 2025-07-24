@@ -37,7 +37,7 @@ jobs:
       - name: Checkout .github repository (for admin-team.yml)
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.SUPER_TOKEN }}
           repository: ${{ github.repository_owner }}/.github
           path: github-repo
 
@@ -75,7 +75,6 @@ jobs:
           sed -i "/^team_admins:/a \ \ - @${{ github.event.inputs.github-handle }}" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://github-actions:${{ secrets.SUPER_TOKEN }}@github.com/renan-org/.github.git
           git checkout -b add-admin-@${{ github.event.inputs.github-handle }}
           git add admin-team.yml
           git commit -m "Add @${{ github.event.inputs.github-handle }} to admin team"
@@ -91,7 +90,7 @@ jobs:
           sed -i "/^\s*-\s*@${{ github.event.inputs.github-handle }}/d" "admin-team.yml"
           git config --global user.name "GitHub Actions"
           git config --global user.email "github-actions@github.com"
-          git remote set-url origin https://github-actions:${{ secrets.SUPER_TOKEN }}@github.com/renan-org/.github.git
+          git remote set-url origin https://x-access-token:${{ secrets.SUPER_TOKEN }}@github.com/renan-org/.github.git
           git checkout -b remove-admin-@${{ github.event.inputs.github-handle }}
           git add admin-team.yml
           git commit -m "Remove @${{ github.event.inputs.github-handle }} from admin team"
