@@ -13,6 +13,6 @@
     "supertest": "^6.3.4"
   },
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.20.0"
   }
 }
