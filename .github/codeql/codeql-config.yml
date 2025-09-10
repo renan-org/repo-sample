@@ -17,7 +17,7 @@ queries:
 
   # You can also specify individual queries
   - name: dead-code
-    uses: .github/codeql/queries/dead-code.ql
+    uses: ./.github/codeql/queries/dead-code.ql
 
 # Paths to include in the analysis
 paths:
