@@ -10,7 +10,7 @@
         - nodejs
   - include: 
       query path: 
-        - queries/hardcoded-secrets.ql
+        - queries/request-forgery.ql
 - exclude:
     tags:
       - experimental
