@@ -10,11 +10,14 @@ queries:
     uses: security-and-quality
   - name: security-extended  
     uses: security-extended
-  # Custom query suite
-  - name: custom-express-suite
-    uses: ./.github/codeql/custom-suite.qls
+
   # You can also specify individual queries
-  # - uses: .github/codeql/queries/custom-query.ql
+  # - name: custom-express-suite
+  #   uses: ./.github/codeql/custom-suite.qls
+
+  # You can also specify individual queries
+  - name: dead-code
+    uses: .github/codeql/queries/dead-code.ql
 
 # Paths to include in the analysis
 paths:

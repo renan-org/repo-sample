@@ -1,6 +1,5 @@
 name: Demo workflow
 on: 
-  push:
   workflow_dispatch:
 
 jobs:

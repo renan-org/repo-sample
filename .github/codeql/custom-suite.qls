@@ -1,14 +1,14 @@
 - description: Custom query suite for Node.js Express applications
 - queries:
   - include:
-      kind: 
-        - problem
-        - path-problem
-      tags:
-        - security
-        - express
-        - nodejs
+      kind: problem
+      tags: security
+  - include:
+      kind: path-problem
+      tags: security
+  - include:
+      tags: express
+  - include:
+      tags: nodejs
 - exclude:
-    tags:
-      - experimental
-      - external/cwe/cwe-200  # Information exposure (if too noisy)
+    tags: experimental
