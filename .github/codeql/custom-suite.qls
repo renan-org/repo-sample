@@ -1,0 +1,17 @@
+- description: Custom query suite for Node.js Express applications
+- queries:
+  - include:
+      kind: 
+        - problem
+        - path-problem
+      tags:
+        - security
+        - express
+        - nodejs
+  - include: 
+      query path: 
+        - queries/hardcoded-secrets.ql
+- exclude:
+    tags:
+      - experimental
+      - external/cwe/cwe-200  # Information exposure (if too noisy)

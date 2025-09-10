@@ -1,0 +1,76 @@
+name: "CodeQL Config for Node.js App"
+
+# Disable the default CodeQL query suites
+disable-default-queries: false
+
+# Define query suites to run
+queries:
+  # Built-in query packs
+  - name: security-and-quality
+    uses: security-and-quality
+  - name: security-extended  
+    uses: security-extended
+  # Custom query suite
+  - name: custom-express-suite
+    uses: ./.github/codeql/custom-suite.qls
+  # You can also specify individual queries
+  # - uses: .github/codeql/queries/custom-query.ql
+
+# Paths to include in the analysis
+paths:
+  - "server.js"
+  - "**/*.js"
+  - "**/*.json"
+
+# Paths to exclude from analysis
+paths-ignore:
+  - "node_modules/**"
+  - "tests/**"
+  - "coverage/**"
+  - "dist/**"
+  - "build/**"
+  - "*.min.js"
+  - "**/*.test.js"
+  - "**/*.spec.js"
+
+# Configure specific languages (optional)
+# This matches your workflow matrix
+languages:
+  - javascript-typescript
+
+# Configure build settings for compiled languages (not needed for JavaScript)
+# build:
+#   - language: javascript-typescript
+#     commands:
+#       - "npm ci"
+#       - "npm run build"
+
+# Packs to download and use
+packs:
+  javascript:
+    - "codeql/javascript-queries"
+    # Add custom packs here if needed
+    # - "my-org/my-custom-pack"
+
+# ML-powered queries (if available in your GitHub plan)
+ml-powered-queries: true
+
+# Configure query filters (optional)
+query-filters:
+  - include:
+      kind:
+        - "problem"
+        - "path-problem" 
+      severity:
+        - "error"
+        - "warning"
+  - exclude:
+      tags:
+        - "experimental"
+
+# Specify additional configuration for JavaScript analysis
+javascript:
+  # Include TypeScript files even though this is a JS project
+  include-typescript: true
+  # Configure Node.js specific settings
+  nodejs: true
