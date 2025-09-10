@@ -8,8 +8,6 @@
         - security
         - express
         - nodejs
-  - include: 
-      query: queries/request-forgery.ql
 - exclude:
     tags:
       - experimental
