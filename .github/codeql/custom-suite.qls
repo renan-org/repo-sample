@@ -9,8 +9,7 @@
         - express
         - nodejs
   - include: 
-      query path: 
-        - queries/request-forgery.ql
+      query: queries/request-forgery.ql
 - exclude:
     tags:
       - experimental
