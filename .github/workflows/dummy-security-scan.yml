@@ -1,15 +1,11 @@
-name: Security Scan
+name: Security Scan with Output Handling
 
 on:
-    workflow_dispatch:
-    pull_request:
-    # push:
-    #     branches:
-    #     - main
-    #     - develop
-#   schedule:
-#     # Run daily at 2 AM UTC
-#     - cron: '0 2 * * *'
+#   push:
+#     branches:
+#       - main
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   security-scan:
@@ -17,3 +13,26 @@ jobs:
     with:
       scan-target: '.'
       upload-artifact: true
+
+  handle-results:
+    needs: security-scan
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Scan Results
+        run: |
+          echo "🔍 Security Scan Completed"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Status: ${{ needs.security-scan.outputs.scan-result }}"
+          echo "Timestamp: ${{ needs.security-scan.outputs.scan-timestamp }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+      - name: Fail on security warnings
+        if: needs.security-scan.outputs.scan-result == 'warning'
+        run: |
+          echo "⚠️  Security issues detected!"
+          exit 1
+
+      - name: Success
+        if: needs.security-scan.outputs.scan-result == 'passed'
+        run: echo "✅ All security checks passed!"
