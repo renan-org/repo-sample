@@ -16,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout my repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Run my script
-        run: echo "My second step"
+        run: echo "Run my script when review-completed label is added by a reviewer"
 
   remove-label-job-added-by-author:
     if: github.event.label.name == 'review-completed' && github.event.sender.login == github.event.pull_request.user.login
@@ -35,3 +35,7 @@ jobs:
               issue_number: context.issue.number,
               name: 'review-completed'
             })
+
+      - name: Fail workflow
+        run: exit 1
+
