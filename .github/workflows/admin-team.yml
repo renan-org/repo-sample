@@ -28,7 +28,7 @@ jobs:
           gh issue comment ${{ github.event.issue.number }} --body "This issue is being processed by the Admin Team Management workflow. Please wait for the results."
 
       - name: Checkout .github repository (for admin-team.yml)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.SUPER_TOKEN }}
           repository: ${{ github.repository_owner }}/.github

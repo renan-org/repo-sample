@@ -29,13 +29,13 @@ jobs:
     
     steps:
       - name: Checkout current repository (for action)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: current-repo
           
       - name: Checkout .github repository (for admin-team.yml)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           token: ${{ secrets.SUPER_TOKEN }}
           repository: ${{ github.repository_owner }}/.github
