@@ -9,7 +9,7 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "mocha": "^11.7.4",
+    "mocha": "^11.7.5",
     "supertest": "^7.1.4"
   },
   "dependencies": {
