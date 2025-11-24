@@ -32,7 +32,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Remove review-completed label
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             github.rest.issues.removeLabel({
