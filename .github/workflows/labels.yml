@@ -11,7 +11,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  label-job:
+  label-review-completed:
     if: github.event.label.name == 'review-completed' && github.event.sender.login != github.event.pull_request.user.login
     runs-on: ubuntu-latest
     concurrency:
