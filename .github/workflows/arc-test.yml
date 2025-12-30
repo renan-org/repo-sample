@@ -1,0 +1,11 @@
+name: ARC Workflow
+
+on: 
+  - push
+  - workflow_dispatch
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - run: echo "Running on ARC!"
