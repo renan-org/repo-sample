@@ -48,20 +48,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      # Checkout the workflow repository (repo-sample) to access its actions
-      # When this reusable workflow is called from another repo, we need to explicitly
-      # check out repo-sample to find its local actions
-      - name: Checkout workflow repository
-        uses: actions/checkout@v4
-        with:
-          repository: renan-org/repo-sample
-          ref: ${{ github.ref }}
-
-      # Call the custom action using RELATIVE path
-      # This works because we've checked out repo-sample above
+      # Call the custom action using absolute reference
+      # This works when called from other repositories because it explicitly
+      # specifies which repository the action comes from
       - name: Call dummy action
         id: dummy
-        uses: ./.github/actions/dummy-action
+        uses: renan-org/repo-sample/.github/actions/dummy-action@master
         with:
           message: ${{ inputs.input-message }}
 
