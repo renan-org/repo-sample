@@ -58,7 +58,7 @@ jobs:
       # ./.github/actions/dummy-action/
       - name: Call dummy action
         id: dummy
-        uses: renan-org/repo-sample/.github/actions/dummy-action@main
+        uses: renan-org/repo-sample/.github/actions/dummy-action@master
         with:
           message: ${{ inputs.input-message }}
 
