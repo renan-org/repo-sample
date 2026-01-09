@@ -3,29 +3,22 @@
 #
 # KEY CONCEPTS:
 #
-# 1. INTERNAL PATH REFERENCES (No Git Markers):
-#    - This workflow uses RELATIVE paths to reference local actions
-#    - Example: uses: ./.github/actions/dummy-action/
-#    - NO git markers (@v1, @main, @sha) are needed for internal references
-#    - The relative path works because GitHub Actions checks out the workflow's repository
-#
-# 2. EXTERNAL CONSUMPTION PATTERN:
+# 1. EXTERNAL CONSUMPTION PATTERN:
 #    When another repository wants to use this reusable workflow, they reference it with:
 #      uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@v1
 #      uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@main
-#      uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@<commit-sha>
 #
 #    The git marker (@v1, @main, etc.) is applied to the REUSABLE WORKFLOW reference.
 #    The workflow itself continues to use relative paths for internal actions.
 #
-# 3. VERSIONING IMPLICATIONS:
+# 2. VERSIONING IMPLICATIONS:
 #    - Git markers on the workflow reference determine which VERSION of this entire workflow runs
 #    - When you tag this repo with v1, external consumers using @v1 get this workflow AND
 #      the version of the custom action that existed at that tag
 #    - Both the workflow and action are versioned together as part of the repository tag
 #    - No separate versioning is needed for the internal action reference
 #
-# 4. WHY THIS WORKS:
+# 3. WHY THIS WORKS:
 #    - GitHub Actions automatically checks out the workflow's repository when running
 #    - The checkout includes all files at the specified version (tag/branch/commit)
 #    - Relative paths then work naturally within that checked-out repository structure
@@ -48,12 +41,16 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Prints branch
+        run: |
+          echo "Running reusable workflow on branch: ${{ github.ref }}"
+
       # Call the custom action using absolute reference
       # This works when called from other repositories because it explicitly
       # specifies which repository the action comes from
       - name: Call dummy action
         id: dummy
-        uses: renan-org/repo-sample/.github/actions/dummy-action@master
+        uses: renan-org/repo-sample/.github/actions/dummy-action@${{ github.ref }}
         with:
           message: ${{ inputs.input-message }}
 
