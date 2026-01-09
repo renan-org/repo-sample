@@ -48,14 +48,17 @@ jobs:
     permissions:
       contents: read
     steps:
-      # Checkout is required so that relative paths to local actions work
-      # This checks out the repository that contains this workflow
-      - name: Checkout repository
+      # Checkout the workflow repository (repo-sample) to access its actions
+      # When this reusable workflow is called from another repo, we need to explicitly
+      # check out repo-sample to find its local actions
+      - name: Checkout workflow repository
         uses: actions/checkout@v4
+        with:
+          repository: renan-org/repo-sample
+          ref: ${{ github.ref }}
 
-      # Call the custom action using RELATIVE path (no git marker)
-      # This works because we've checked out the repo above
-      # For reusable workflows, always use relative paths for internal actions
+      # Call the custom action using RELATIVE path
+      # This works because we've checked out repo-sample above
       - name: Call dummy action
         id: dummy
         uses: ./.github/actions/dummy-action
