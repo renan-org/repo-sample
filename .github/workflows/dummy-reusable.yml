@@ -41,12 +41,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # - name: Prints branch
-      #   run: |
-      #     echo "Running reusable workflow on branch: ${{ github.ref }}"
+      - name: Prints branch
+        run: |
+          echo "Running reusable workflow on branch: ${{ github.ref }}"
 
       - name: Call dummy action
         id: dummy
