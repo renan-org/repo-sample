@@ -55,9 +55,10 @@ jobs:
 
       # Call the custom action using RELATIVE path (no git marker)
       # This works because we've checked out the repo above
+      # ./.github/actions/dummy-action/
       - name: Call dummy action
         id: dummy
-        uses: ./.github/actions/dummy-action/
+        uses: renan-org/repo-sample/.github/actions/dummy-action@main
         with:
           message: ${{ inputs.input-message }}
 
