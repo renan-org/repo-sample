@@ -55,10 +55,10 @@ jobs:
 
       # Call the custom action using RELATIVE path (no git marker)
       # This works because we've checked out the repo above
-      # ./.github/actions/dummy-action/
+      # For reusable workflows, always use relative paths for internal actions
       - name: Call dummy action
         id: dummy
-        uses: renan-org/repo-sample/.github/actions/dummy-action@master
+        uses: ./.github/actions/dummy-action
         with:
           message: ${{ inputs.input-message }}
 
