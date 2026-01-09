@@ -1,0 +1,49 @@
+# Test Workflow for Local Testing of Reusable Workflow
+#
+# PURPOSE:
+# This workflow is designed to test the reusable workflow locally within this repository.
+# It can also serve as an example for external repositories that want to consume the reusable workflow.
+#
+# LOCAL TESTING (within this repo):
+#   - Uses a relative path to call the reusable workflow: ./.github/workflows/dummy-reusable.yml
+#   - Triggered manually via workflow_dispatch
+#   - Allows testing changes before releasing/tagging
+#
+# EXTERNAL TESTING (from another repo):
+#   To test this from an external repository, copy this workflow and change the `uses` line to:
+#     uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@main
+#   Or use a specific version tag:
+#     uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@v1
+#
+# VERSIONING NOTES:
+#   - When calling from external repos, the git marker (@main, @v1, @sha) determines which version runs
+#   - The git marker applies to the entire workflow + any actions it references
+#   - All components (workflow + actions) are versioned together via the repository tag/branch
+#
+# TESTING WORKFLOW:
+#   1. Test locally first using this workflow (relative path)
+#   2. Create a git tag (e.g., v1) when ready to release
+#   3. Test from an external repo using: uses: githubcustomers/optiver/...@v1
+#   4. Verify the workflow and action work as expected externally
+
+name: Test Reusable Workflow Locally
+
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      test-message:
+        description: 'Optional test message to pass to the reusable workflow'
+        required: false
+        type: string
+        default: 'Test message from local test workflow'
+
+jobs:
+  test-reusable:
+    # Call the reusable workflow using relative path (for local testing)
+    # External repos would replace this with: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@v1
+    uses: ./.github/workflows/dummy-reusable.yml
+    with:
+      input-message: ${{ inputs.test-message }}

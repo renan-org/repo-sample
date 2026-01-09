@@ -1,0 +1,42 @@
+# Dummy Custom Action
+# This composite action demonstrates how local actions work within a repository.
+#
+# IMPORTANT NOTES ABOUT PATH USAGE:
+# - This action is referenced internally using RELATIVE paths (e.g., ./.github/actions/dummy-action/)
+# - NO git markers (like @v1, @main, @sha) are needed when referencing locally
+# - External repositories consuming our reusable workflow will use git markers on the WORKFLOW,
+#   but this action will still be referenced via relative path from within that workflow
+#
+# Example internal usage in reusable workflow:
+#   uses: ./.github/actions/dummy-action/
+#
+# External repos will NOT reference this action directly. They reference the reusable workflow with:
+#   uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@v1
+# And the reusable workflow internally references this action via relative path.
+
+name: 'Dummy Action'
+description: 'A simple composite action for testing release patterns'
+
+inputs:
+  message:
+    description: 'Message to echo'
+    required: false
+    default: 'Hello from dummy action!'
+
+outputs:
+  result:
+    description: 'The result message from the action'
+    value: ${{ steps.echo-step.outputs.result }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Echo message and set output
+      id: echo-step
+      shell: bash
+      run: |
+        echo "Input message: ${{ inputs.message }}"
+        echo "Processing message..."
+        RESULT="Processed: ${{ inputs.message }}"
+        echo "result=${RESULT}" >> $GITHUB_OUTPUT
+        echo "Action completed successfully!"

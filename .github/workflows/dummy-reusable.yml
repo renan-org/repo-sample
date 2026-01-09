@@ -1,0 +1,68 @@
+# Dummy Reusable Workflow
+# This workflow demonstrates how reusable workflows consume local custom actions.
+#
+# KEY CONCEPTS:
+#
+# 1. INTERNAL PATH REFERENCES (No Git Markers):
+#    - This workflow uses RELATIVE paths to reference local actions
+#    - Example: uses: ./.github/actions/dummy-action/
+#    - NO git markers (@v1, @main, @sha) are needed for internal references
+#    - The relative path works because GitHub Actions checks out the workflow's repository
+#
+# 2. EXTERNAL CONSUMPTION PATTERN:
+#    When another repository wants to use this reusable workflow, they reference it with:
+#      uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@v1
+#      uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@main
+#      uses: githubcustomers/optiver/.github/workflows/dummy-reusable.yml@<commit-sha>
+#
+#    The git marker (@v1, @main, etc.) is applied to the REUSABLE WORKFLOW reference.
+#    The workflow itself continues to use relative paths for internal actions.
+#
+# 3. VERSIONING IMPLICATIONS:
+#    - Git markers on the workflow reference determine which VERSION of this entire workflow runs
+#    - When you tag this repo with v1, external consumers using @v1 get this workflow AND
+#      the version of the custom action that existed at that tag
+#    - Both the workflow and action are versioned together as part of the repository tag
+#    - No separate versioning is needed for the internal action reference
+#
+# 4. WHY THIS WORKS:
+#    - GitHub Actions automatically checks out the workflow's repository when running
+#    - The checkout includes all files at the specified version (tag/branch/commit)
+#    - Relative paths then work naturally within that checked-out repository structure
+#    - This is why we DON'T need git markers for internal action references
+
+name: Dummy Reusable Workflow
+
+on:
+  workflow_call:
+    inputs:
+      input-message:
+        description: 'Message to pass to the custom action'
+        required: false
+        type: string
+        default: 'Default message from reusable workflow'
+
+jobs:
+  call-dummy-action:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      # Checkout is required so that relative paths to local actions work
+      # This checks out the repository that contains this workflow
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # Call the custom action using RELATIVE path (no git marker)
+      # This works because we've checked out the repo above
+      - name: Call dummy action
+        id: dummy
+        uses: ./.github/actions/dummy-action/
+        with:
+          message: ${{ inputs.input-message }}
+
+      # Display the output from the custom action
+      - name: Display action output
+        run: |
+          echo "Action output: ${{ steps.dummy.outputs.result }}"
+          echo "Workflow completed successfully!"
