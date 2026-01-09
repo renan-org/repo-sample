@@ -41,6 +41,9 @@ jobs:
     permissions:
       contents: read
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Prints branch
         run: |
           echo "Running reusable workflow on branch: ${{ github.ref }}"
@@ -50,7 +53,7 @@ jobs:
       # specifies which repository the action comes from
       - name: Call dummy action
         id: dummy
-        uses: renan-org/repo-sample/.github/actions/dummy-action@${{ github.ref }}
+        uses: renan-org/repo-sample/.github/actions/dummy-action@master
         with:
           message: ${{ inputs.input-message }}
 
