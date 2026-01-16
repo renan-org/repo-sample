@@ -43,7 +43,7 @@ func TestHelloCommand(t *testing.T) {
 		{
 			name:     "uppercase greeting",
 			args:     []string{"-uppercase", "Bob"},
-			expected: "HELLO, Bob!",
+			expected: "HELLO, BOB!",
 		},
 	}
 

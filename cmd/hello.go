@@ -3,6 +3,7 @@ package cmd
 import (
 	"flag"
 	"fmt"
+	"strings"
 )
 
 // helloCommand implements the hello command
@@ -31,7 +32,7 @@ func helloCommand(args []string) error {
 
 	greeting := fmt.Sprintf("Hello, %s!", name)
 	if *uppercase {
-		greeting = fmt.Sprintf("HELLO, %s!", name)
+		greeting = strings.ToUpper(greeting)
 	}
 
 	fmt.Println(greeting)
