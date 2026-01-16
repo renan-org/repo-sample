@@ -58,3 +58,18 @@ typings/
 
 # next.js build output
 .next
+
+# Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Go binary output
+/repo-sample
+/bin/
+/dist/
