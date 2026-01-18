@@ -1,7 +1,7 @@
 name: ARC Workflow
 
 on: 
-  - push
+  # - push
   - workflow_dispatch
 
 jobs:

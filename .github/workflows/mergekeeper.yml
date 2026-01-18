@@ -8,6 +8,7 @@ on:
       - master
 
 jobs:
+  name: Merge Gatekeeper
   merge-gatekeeper:
     runs-on: ubuntu-latest
     # Restrict permissions of the GITHUB_TOKEN.
