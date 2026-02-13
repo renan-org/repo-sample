@@ -1,0 +1,16 @@
+name: Test Admin Team Management
+on:
+  workflow_dispatch:
+    inputs:
+      runner-type:
+        description: 'Type of runner to use'
+        required: true
+        default: 'self-hosted'
+
+jobs:
+  test-job:
+    runs-on: ["{{ github.event.inputs.runner-type }}"]
+    
+    steps:
+      - name: Hello World
+        run: echo "Hello, world! This is a test of the queue workflow."
