@@ -11,7 +11,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  label-job:
+  label-review-completed:
     if: github.event.label.name == 'review-completed' && github.event.sender.login != github.event.pull_request.user.login
     runs-on: ubuntu-latest
     concurrency:
@@ -19,7 +19,7 @@ jobs:
       cancel-in-progress: false
     steps:
       - name: Checkout my repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Run my script
         run: echo "Run my script when review-completed label is added by a reviewer"
