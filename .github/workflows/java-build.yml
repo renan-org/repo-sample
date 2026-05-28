@@ -1,0 +1,40 @@
+---
+name: Java Build Workflow
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      # Uncomment the below steps if you want to use Gradle instead of Maven
+      # - name: Set up JDK 17 for Gradle
+      #   uses: actions/setup-java@v3
+      #   with:
+      #     java-version: '17'
+      #     distribution: 'temurin'
+      #     cache: gradle
+
+      # - name: Build with Gradle
+      #   uses: gradle/gradle-build-action@v2
+      #   with:
+      #     arguments: build
